@@ -1,0 +1,23 @@
+services:
+  alien-garden-trainer:
+    profiles: ["cli"]
+    build: .
+    environment:
+      PYTHONUNBUFFERED: "1"
+    command: ["python", "-m", "alien_garden", "--episodes", "10", "--seed", "42", "--no-render"]
+  api:
+    build: .
+    environment:
+      PYTHONUNBUFFERED: "1"
+    command: ["uvicorn", "alien_garden.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+  web:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_PROXY_TARGET: http://api:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
